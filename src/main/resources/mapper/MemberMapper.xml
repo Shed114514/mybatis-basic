@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shed.mapper.MemberMapper">
+
+    <!--SQL语句抽取-->
+    <sql id="selectMember">SELECT * FROM t_member</sql>
+
+    <!--数据增加-->
+    <insert id="insert" parameterType="member">
+        INSERT INTO t_member VALUES (#{mid},#{name},#{age},#{birthday})
+    </insert>
+
+    <!--数据删除-->
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE FROM t_member WHERE mid=#{mid}
+    </delete>
+
+    <!--数据更新-->
+    <update id="updateByPrimaryKeySelective" parameterType="member">
+        UPDATE t_member
+        <set>
+            <if test="name!=null">
+                name=#{name},
+            </if>
+            <if test="age!=null">
+                age=#{age},
+            </if>
+            <if test="birthday!=null">
+                date=#{birthday},
+            </if>
+        </set>
+          WHERE mid=#{mid}
+    </update>
+
+    <!--所有数据查询-->
+    <select id="selectAll" resultType="member">
+        <include refid="selectMember"/>
+    </select>
+
+</mapper>
