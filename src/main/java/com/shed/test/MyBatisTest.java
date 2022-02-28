@@ -8,6 +8,7 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,38 +18,40 @@ import java.util.List;
 
 public class MyBatisTest {
 
-    @Test
-    public void testInsert() throws IOException {
+    private MemberMapper memberMapper;
 
+    // 在Test注释声明的方法执行之前先执行Before所定义方法体
+    @Before
+    public void before() throws IOException {
+        InputStream resourceAsStream = Resources.getResourceAsStream("SqlMapConfig.xml");
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession(true);
+        memberMapper = sqlSession.getMapper(MemberMapper.class);
+    }
+
+    @Test
+    public void testInsert() {
         Member member = new Member(7,"Greg",25,new Date());
-
-        MyBatisTest.getMapper("SqlMapConfig.xml").insert(member);
-
+        memberMapper.insert(member);
     }
 
     @Test
-    public void testDelete() throws IOException {
-
-        MyBatisTest.getMapper("SqlMapConfig.xml").deleteByPrimaryKey(5);
-
+    public void testDelete() {
+        memberMapper.deleteByPrimaryKey(3);
     }
 
     @Test
-    public void testUpdate() throws IOException {
-
+    public void testUpdate() {
         Member member = new Member(6,"Frank",null,null);
-
-        MyBatisTest.getMapper("SqlMapConfig.xml").updateByPrimaryKeySelective(member);
+        memberMapper.updateByPrimaryKeySelective(member);
     }
 
     @Test
-    public void testSelect() throws IOException {
-
+    public void testSelect() {
         // 分页助手需要放置在首行
         PageHelper.startPage(2,2);
 
-        List<Member> memberList = MyBatisTest.getMapper("SqlMapConfig.xml").selectAll();
-
+        List<Member> memberList = memberMapper.selectAll();
         for (Member member : memberList) {
             System.out.println(member);
         }
@@ -63,13 +66,5 @@ public class MyBatisTest {
         System.out.println("下一页: " + pageInfo.getNextPage());
         System.out.println("是否为第一页: " + pageInfo.isIsFirstPage());
         System.out.println("是否为最后一页: " + pageInfo.isIsLastPage());
-
-    }
-
-    public static MemberMapper getMapper(String sqlMapConfig) throws IOException {
-        InputStream resourceAsStream = Resources.getResourceAsStream(sqlMapConfig);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
-        SqlSession sqlSession = sqlSessionFactory.openSession(true);
-        return sqlSession.getMapper(MemberMapper.class) ;
     }
 }
